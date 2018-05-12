@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"time"
 )
 
 type EventLoop struct {
@@ -75,9 +76,26 @@ func (e *EventLoop) run() {
 }
 
 func (e *EventLoop) dispatch(event *Event) {
-	if channel, ok := e.channels[event.Channel]; ok {
-		channel.Process(event)
+	_, err := e.channels[event.Channel]
+
+	if !err  {
+		// log error message channel not found
+
+		return
 	}
 
-	// log error message channel not found
+	timer := time.NewTimer(2 * time.Second)
+
+	go e.send(event, timer.C)
+}
+
+func (e *EventLoop) send(event *Event, timer <-chan time.Time)  {
+	<-timer
+	err := e.channels[event.Channel].Process(event)
+
+	if err != nil {
+		// log event fail
+	}
+
+	e.events = e.events[:len(e.events)-1]
 }
