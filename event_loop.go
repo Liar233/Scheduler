@@ -6,7 +6,7 @@ import (
 
 type EventLoop struct {
 	events   []*Event
-	channels map[string]*ChannelInterface
+	channels map[string]ChannelInterface
 	running  bool
 	add      chan *Event
 	stop     chan interface{}
@@ -18,22 +18,22 @@ func NewEventLoop() *EventLoop {
 	}
 }
 
+func (e *EventLoop) AddChannel(ch ChannelInterface) error {
+	if _, ok := e.channels[ch.Name()]; ok {
+		errors.New("channel already exists")
+	}
+
+	e.channels[ch.Name()] = ch
+
+	return nil
+}
+
 func (e *EventLoop) Push(event *Event) {
 	if e.running == false {
 		e.events = append(e.events, event)
 	}
 
 	e.add <- event
-}
-
-func (e *EventLoop) Add(ch ChannelInterface) error {
-	if _, ok := e.channels[ch.Name()]; ok {
-		errors.New("channel already exists")
-	}
-
-	e.channels[ch.Name()] = &ch
-
-	return nil
 }
 
 func (e *EventLoop) Start() {
@@ -67,8 +67,17 @@ func (e *EventLoop) run() {
 		case newEvent := <-e.add:
 			e.events = append(e.events, newEvent)
 		case <-e.stop:
+			close(e.add)
 			e.running = false
 			return
 		}
 	}
+}
+
+func (e *EventLoop) dispatch(event *Event) {
+	if channel, ok := e.channels[event.Channel]; ok {
+		channel.Process(event)
+	}
+
+	// log error message channel not found
 }
