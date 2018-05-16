@@ -2,100 +2,64 @@ package main
 
 import (
 	"errors"
-	"time"
 )
 
 type EventLoop struct {
-	events   []*Event
-	channels map[string]ChannelInterface
+	events   EventPool
+	channels ChannelPool
 	running  bool
 	add      chan *Event
 	stop     chan interface{}
 }
 
-func NewEventLoop() *EventLoop {
+func NewEventLoop(channels ChannelPool) *EventLoop {
 	return &EventLoop{
-		running: false,
+		running:  false,
+		channels: channels,
+		events:   NewEventPool(),
 	}
 }
 
-func (e *EventLoop) AddChannel(ch ChannelInterface) error {
-	if _, ok := e.channels[ch.Name()]; ok {
-		errors.New("channel already exists")
-	}
-
-	e.channels[ch.Name()] = ch
-
-	return nil
+func (el *EventLoop) AddChannel(ch ChannelInterface) error {
+	return el.channels.Add(ch)
 }
 
-func (e *EventLoop) Push(event *Event) {
-	if e.running == false {
-		e.events = append(e.events, event)
+func (el *EventLoop) Push(event *Event) {
+	if el.running == false {
+		el.events.Push(event)
 	}
 
-	e.add <- event
+	el.add <- event
 }
 
-func (e *EventLoop) Start() {
-	if e.running == true {
+func (el *EventLoop) Start() {
+	if el.running == true {
 		panic(errors.New("event loop already running"))
 	}
 
-	e.running = true
+	el.running = true
 
-	go e.run()
+	go el.run()
 }
 
-func (e *EventLoop) Snapshot() []*Event {
-	snapshot := make([]*Event, 0)
-
-	for _, event := range e.events {
-		eventCopy := &Event{}
-
-		*eventCopy = *event
-
-		snapshot = append(snapshot, eventCopy)
-	}
-
-	return snapshot
+func (el *EventLoop) Snapshot() []*Event {
+	return el.events.Snapshot()
 }
 
-func (e *EventLoop) run() {
+func (el *EventLoop) run() {
 
 	for {
 		select {
-		case newEvent := <-e.add:
-			e.events = append(e.events, newEvent)
-		case <-e.stop:
-			close(e.add)
-			e.running = false
+		case newEvent := <-el.add:
+			el.events.Push(newEvent)
+		case <-el.stop:
+			close(el.add)
+			el.running = false
 			return
 		}
 	}
 }
 
-func (e *EventLoop) dispatch(event *Event) {
-	_, err := e.channels[event.Channel]
-
-	if !err  {
-		// log error message channel not found
-
-		return
-	}
-
-	timer := time.NewTimer(2 * time.Second)
-
-	go e.send(event, timer.C)
-}
-
-func (e *EventLoop) send(event *Event, timer <-chan time.Time)  {
-	<-timer
-	err := e.channels[event.Channel].Process(event)
-
-	if err != nil {
-		// log event fail
-	}
-
-	e.events = e.events[:len(e.events)-1]
+func (el *EventLoop) dispatch(event *Event) {
+	go el.channels.DispatchEvent(event)
 }
