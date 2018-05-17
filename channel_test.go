@@ -22,7 +22,7 @@ func TestChannelPool_Add(t *testing.T) {
 	}
 }
 
-func TestChannel_Fire(t *testing.T) {
+func TestChannelPool_DispatchEvent_Fire(t *testing.T) {
 	event1 := Event{
 		Channel: "channel1",
 	}
@@ -55,6 +55,5 @@ func TestChannel_Fire(t *testing.T) {
 		t.Fail()
 		t.Error("Event dispatched on none existence channel")
 	}
-
 
 }
