@@ -12,6 +12,10 @@ type Event struct {
 	FireTime time.Time
 }
 
+func (e *Event) Sub(t time.Time) time.Duration {
+	return e.FireTime.Sub(t)
+}
+
 type EventPool struct {
 	events []*Event
 }
@@ -34,8 +38,20 @@ func (e *EventPool) Snapshot() []*Event {
 	return snapshot
 }
 
+func (e *EventPool) Get(i int) *Event {
+	return e.events[i]
+}
+
 func (e *EventPool) Len() int {
 	return len(e.events)
+}
+
+func (e *EventPool) Swap(i, j int) {
+	e.events[i], e.events[j] = e.events[j], e.events[i]
+}
+
+func (e *EventPool) Less(i, j int) bool {
+	return e.events[i].FireTime.Before(e.events[j].FireTime)
 }
 
 func NewEventPool() EventPool {
