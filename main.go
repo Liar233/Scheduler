@@ -1,5 +1,15 @@
 package main
 
+import (
+	"os"
+	"log"
+)
+
 func main() {
-	println("Start")
+	cli := NewCli()
+
+	err := cli.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
