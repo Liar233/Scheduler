@@ -2,21 +2,22 @@ package main
 
 import (
 	"github.com/urfave/cli"
-	"fmt"
 )
 
 type CliAdapter struct {
 	engine *cli.App
 }
 
-func NewCli() *CliAdapter {
-	app := cli.NewApp()
+func NewCli(config *AppConfig) *CliAdapter {
+	app :=  &CliAdapter{
+		engine: cli.NewApp(),
+	}
 
-	app.Name = "scheduler"
-	app.Usage = "Event scheduler service."
-	app.Version = "0.0.1"
+	app.engine.Name = "scheduler"
+	app.engine.Usage = "Event scheduler service."
+	app.engine.Version = "0.0.1"
 
-	app.Flags = []cli.Flag{
+	app.engine.Flags = []cli.Flag{
 		cli.UintFlag{
 			Name: "port, p",
 			Usage: "`PORT` for http server",
@@ -27,16 +28,20 @@ func NewCli() *CliAdapter {
 			Name: "config, c",
 			Usage: "Load configuration from `FILE`",
 		},
+		cli.BoolFlag{
+			Name: "master, m",
+			Usage: "Start as Master server",
+		},
 	}
 
-	app.Action = func(c *cli.Context) error {
-		fmt.Println("Started...")
+	app.engine.Action = func(c *cli.Context) error {
+		config.Port = c.GlobalUint("port")
+		config.Master = c.Bool("master")
+
 		return nil
 	}
 
-	return &CliAdapter{
-		engine: app,
-	}
+	return app
 }
 
 func (cli *CliAdapter) Run(arguments []string) error {

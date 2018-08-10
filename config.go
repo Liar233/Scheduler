@@ -12,6 +12,7 @@ type ChannelConfig struct {
 }
 
 type AppConfig struct {
+	Master bool
 	Port uint
 	Storage StorageConfig
 	Channels map[string]ChannelConfig
