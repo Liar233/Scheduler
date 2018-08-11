@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"log"
-	"fmt"
 )
 
 
@@ -15,6 +14,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("%+v\n", config)
 }

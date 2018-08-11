@@ -2,6 +2,9 @@ package main
 
 import (
 	"github.com/urfave/cli"
+	"fmt"
+	"os"
+	"time"
 )
 
 type CliAdapter struct {
@@ -9,7 +12,7 @@ type CliAdapter struct {
 }
 
 func NewCli(config *AppConfig) *CliAdapter {
-	app :=  &CliAdapter{
+	app := &CliAdapter{
 		engine: cli.NewApp(),
 	}
 
@@ -19,24 +22,37 @@ func NewCli(config *AppConfig) *CliAdapter {
 
 	app.engine.Flags = []cli.Flag{
 		cli.UintFlag{
-			Name: "port, p",
-			Usage: "`PORT` for http server",
-			Value: 2337,
+			Name:   "port, p",
+			Usage:  "`PORT` for http server",
+			Value:  2337,
 			EnvVar: "SCHEDULER_PORT",
 		},
 		cli.StringFlag{
-			Name: "config, c",
+			Name:  "config, c",
 			Usage: "Load configuration from `FILE`",
-		},
-		cli.BoolFlag{
-			Name: "master, m",
-			Usage: "Start as Master server",
 		},
 	}
 
 	app.engine.Action = func(c *cli.Context) error {
-		config.Port = c.GlobalUint("port")
-		config.Master = c.Bool("master")
+		configFilePath := c.String("config")
+
+		if configFilePath == "" {
+			return fmt.Errorf("--config parameter is empty")
+		}
+
+		validationErrors := LoadYamlConfig(configFilePath, config)
+
+		if len(validationErrors) > 0 {
+			for _, err := range validationErrors {
+				fmt.Fprintf(os.Stderr, "%s %s \n", time.Now().Format("2006/01/02 15:04:05"), err)
+			}
+
+			return fmt.Errorf("scheduler can't start")
+		}
+
+		if port := c.Uint("port"); port != 0 {
+			config.Port = c.Uint("port")
+		}
 
 		return nil
 	}

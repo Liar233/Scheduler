@@ -1,0 +1,20 @@
+port: 233233
+master: false
+storage:
+  name: postgresql
+  driverPath: ../drivers/storage_driver_stub.so
+  options:
+    port: 3000
+    host: 127.0.0.1
+    username: liar233
+    password: qwerty
+    database: test_db
+channels:
+  tcp-client:
+    name: tcp-client
+    driverPath: ../drivers/channel_driver_stub.so
+    options:
+      host: 127.0.0.1
+      port: 4444
+      username: liar233
+      password: qwerty
