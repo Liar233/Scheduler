@@ -5,7 +5,6 @@ import (
 	"log"
 )
 
-
 func main() {
 	var config AppConfig
 	cli := NewCli(&config)
