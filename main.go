@@ -6,10 +6,17 @@ import (
 )
 
 func main() {
-	var config AppConfig
-	cli := NewCli(&config)
+	var err error
 
-	err := cli.Run(os.Args)
+	app := Application{}
+	err = app.Bootstrap(os.Args)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.Run()
+
 	if err != nil {
 		log.Fatal(err)
 	}

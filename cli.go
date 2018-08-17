@@ -11,8 +11,8 @@ type CliAdapter struct {
 	engine *cli.App
 }
 
-func NewCli(config *AppConfig) *CliAdapter {
-	app := &CliAdapter{
+func NewCli(config *AppConfig) CliAdapter {
+	app := CliAdapter{
 		engine: cli.NewApp(),
 	}
 
@@ -24,7 +24,6 @@ func NewCli(config *AppConfig) *CliAdapter {
 		cli.UintFlag{
 			Name:   "port, p",
 			Usage:  "`PORT` for http server",
-			Value:  2337,
 			EnvVar: "SCHEDULER_PORT",
 		},
 		cli.StringFlag{

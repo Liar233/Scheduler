@@ -14,6 +14,7 @@ type DriverConfig struct {
 	Options    map[string]interface{} `json:"options" yaml:"options"`
 }
 
+// Validating plugin config
 func (d *DriverConfig) Validate(name string) []error {
 	var validationErrors []error
 
@@ -75,12 +76,14 @@ type ChannelConfig struct {
 }
 
 type AppConfig struct {
-	Master   bool                     `json:"master" yaml:"master"`
-	Port     uint                     `json:"port" yaml:"port"`
-	Storage  StorageConfig            `json:"storage" yaml:"storage"`
-	Channels map[string]ChannelConfig `json:"channels" yaml:"channels"`
+	Master     bool                     `json:"master" yaml:"master"`
+	Port       uint                     `json:"port" yaml:"port"`
+	Storage    StorageConfig            `json:"storage" yaml:"storage"`
+	Channels   map[string]ChannelConfig `json:"channels" yaml:"channels"`
+	ApiTimeout uint                     `json:"api-timeout" yaml:"api-timeout"`
 }
 
+// Trying to fill AppConfig from yaml file
 func LoadYamlConfig(filename string, config *AppConfig) []error {
 	var validation []error
 	var err error
@@ -109,7 +112,6 @@ func LoadYamlConfig(filename string, config *AppConfig) []error {
 	}
 
 	validation = append(validation, config.Storage.Validate("storage")...)
-
 
 	for name, channelConfig := range config.Channels {
 		validation = append(validation, channelConfig.Validate(name)...)

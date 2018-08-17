@@ -1,4 +1,5 @@
-port: 233233
+port: 5233
+api-timeout: 10
 master: false
 storage:
   name: postgresql

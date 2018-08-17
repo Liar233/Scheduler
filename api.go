@@ -1,28 +1,56 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"github.com/gorilla/mux"
+	"io"
+	"fmt"
+	"time"
+)
 
-func handleError(w http.ResponseWriter, errors []error) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
+type ApiController struct {
+	router *mux.Router
 }
 
-func EventList(w http.ResponseWriter, r *http.Request) {
+// get list api response
+func (api *ApiController) eventList(w http.ResponseWriter, r *http.Request) {
+	println("Route started")
 
+	io.WriteString(w, "Events list")
+
+	time.Sleep(time.Duration(5) * time.Second)
+
+	println("Route stopped")
 }
 
-func GetEvent(w http.ResponseWriter, r *http.Request) {
-
+// create api
+func (api *ApiController) createEvent(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "Create event")
 }
 
-func CreateEvent(w http.ResponseWriter, r *http.Request) {
+// get the event
+func (api *ApiController) getEvent(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
+	io.WriteString(w, fmt.Sprintf("Get event %s", vars["id"]))
 }
 
-func DeleteEvent(w http.ResponseWriter, r *http.Request) {
+// delete the event
+func (api *ApiController) deleteEvent(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
+	io.WriteString(w, fmt.Sprintf("Delete event %s", vars["id"]))
 }
 
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
+func NewApiController() *ApiController {
+	controller := &ApiController{
+		router: mux.NewRouter(),
+	}
 
+	controller.router.HandleFunc("/api/v1/event", controller.createEvent).Methods("POST")
+	controller.router.HandleFunc("/api/v1/event", controller.eventList).Methods("GET")
+	controller.router.HandleFunc("/api/v1/event/{id}", controller.getEvent).Methods("GET")
+	controller.router.HandleFunc("/api/v1/event/{id}", controller.deleteEvent).Methods("DELETE")
+
+	return controller
 }
