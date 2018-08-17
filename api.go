@@ -5,8 +5,16 @@ import (
 	"github.com/gorilla/mux"
 	"io"
 	"fmt"
-	"time"
+	"io/ioutil"
+	"encoding/json"
 )
+
+type EventDto struct {
+	ID       string `json:"id"`
+	Channel  string `json:"channel"`
+	Payload  string `json:"payload"`
+	FireTime string `json:"fireTime"`
+}
 
 type ApiController struct {
 	router *mux.Router
@@ -14,18 +22,18 @@ type ApiController struct {
 
 // get list api response
 func (api *ApiController) eventList(w http.ResponseWriter, r *http.Request) {
-	println("Route started")
-
-	io.WriteString(w, "Events list")
-
-	time.Sleep(time.Duration(5) * time.Second)
-
-	println("Route stopped")
+	io.WriteString(w, "List event")
 }
 
 // create api
 func (api *ApiController) createEvent(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Create event")
+	eventDto :=	EventDto{}
+
+	if err := jsonToDto(r, &eventDto); err != nil {
+		println(err.Error())
+	}
+
+	io.WriteString(w, fmt.Sprintf("%+v\n", eventDto))
 }
 
 // get the event
@@ -53,4 +61,15 @@ func NewApiController() *ApiController {
 	controller.router.HandleFunc("/api/v1/event/{id}", controller.deleteEvent).Methods("DELETE")
 
 	return controller
+}
+
+// try to transform request body from json to struct
+func jsonToDto(r *http.Request, dto interface{}) error {
+	content, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(content, dto)
 }
