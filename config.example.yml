@@ -3,7 +3,7 @@ api-timeout: 10
 master: false
 storage:
   name: postgresql
-  driverPath: ../drivers/storage_driver_stub.so
+  driverPath: ./drivers/storage_driver_stub.so
   options:
     port: 3000
     host: 127.0.0.1
@@ -13,7 +13,7 @@ storage:
 channels:
   tcp-client:
     name: tcp-client
-    driverPath: ../drivers/channel_driver_stub.so
+    driverPath: ./drivers/channel_driver_stub.so
     options:
       host: 127.0.0.1
       port: 4444

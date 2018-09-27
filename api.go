@@ -5,8 +5,8 @@ import (
 	"github.com/gorilla/mux"
 	"io"
 	"fmt"
-	"encoding/json"
 	"io/ioutil"
+	"encoding/json"
 )
 
 type EventDto struct {
@@ -22,19 +22,18 @@ type ApiController struct {
 
 // get list api response
 func (api *ApiController) eventList(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Event list")
+	io.WriteString(w, "List event")
 }
 
 // create api
 func (api *ApiController) createEvent(w http.ResponseWriter, r *http.Request) {
+	eventDto :=	EventDto{}
 
-	eventDto := EventDto{}
-
-	if err := requestToDto(r, &eventDto); err != nil {
+	if err := jsonToDto(r, &eventDto); err != nil {
 		println(err.Error())
 	}
 
-	fmt.Printf("%+v\n", eventDto)
+	io.WriteString(w, fmt.Sprintf("%+v\n", eventDto))
 }
 
 // get the event
@@ -73,4 +72,15 @@ func NewApiController() *ApiController {
 	controller.router.HandleFunc("/api/v1/event/{id}", controller.deleteEvent).Methods("DELETE")
 
 	return controller
+}
+
+// try to transform request body from json to struct
+func jsonToDto(r *http.Request, dto interface{}) error {
+	content, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(content, dto)
 }
