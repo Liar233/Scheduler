@@ -1,9 +1,10 @@
-package main
+package scheduler
 
 import (
 	"testing"
 	"time"
 	"bytes"
+	"github.com/Liar233/Scheduler/model"
 )
 
 type ChannelStub struct {
@@ -11,7 +12,7 @@ type ChannelStub struct {
 	Payload []byte
 }
 
-func (c *ChannelStub) Fire(e *Event) error {
+func (c *ChannelStub) Fire(e *model.Event) error {
 	c.Payload = e.Payload
 
 	return nil
@@ -54,7 +55,7 @@ func TestEventLoopRun(t *testing.T) {
 	now := time.Now()
 	fireTime := now.Add(time.Duration(1) * time.Second)
 
-	event := &Event{
+	event := &model.Event{
 		ID:       "TestEvent",
 		Channel:  "test_channel",
 		Payload:  []byte("Test"),

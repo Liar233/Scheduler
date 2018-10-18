@@ -1,23 +1,21 @@
 package main
 
 import (
-	"os"
+	"time"
 	"log"
+	"context"
 )
 
 func main() {
-	var err error
+	app := NewApplication()
 
-	app := Application{}
-	err = app.Bootstrap(os.Args)
+	startCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 
-	if err != nil {
+	defer cancel()
+
+	if err := app.Start(startCtx); err != nil {
 		log.Fatal(err)
 	}
 
-	err = app.Run()
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	<-app.Done()
 }

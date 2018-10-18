@@ -1,9 +1,10 @@
-package main
+package scheduler
 
 import (
 	"testing"
 	"reflect"
 	"time"
+	"github.com/Liar233/Scheduler/model"
 )
 
 func TestEventPool_Snapshot(t *testing.T) {
@@ -11,7 +12,7 @@ func TestEventPool_Snapshot(t *testing.T) {
 
 	events := getEvents()
 
-	for _, event := range (events) {
+	for _, event := range events {
 		pool.Push(event)
 	}
 
@@ -26,7 +27,7 @@ func TestEventPool_Less(t *testing.T) {
 
 	events := getEvents()
 
-	for _, event := range (events) {
+	for _, event := range events {
 		pool.Push(event)
 	}
 
@@ -41,8 +42,8 @@ func TestEventPool_Less(t *testing.T) {
 	}
 }
 
-func getEvents() []*Event {
-	events := make([]*Event, 0)
+func getEvents() []*model.Event {
+	events := make([]*model.Event, 0)
 
 	for i := 0; i < 3; i++ {
 		eventID := "event_" + string(i)
@@ -50,7 +51,7 @@ func getEvents() []*Event {
 		fireTime := time.Now()
 		fireTime.Add(time.Duration(i*5) * time.Minute)
 
-		event := &Event{
+		event := &model.Event{
 			FireTime: fireTime,
 			ID:       eventID,
 		}

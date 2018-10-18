@@ -1,33 +1,22 @@
-package main
+package scheduler
 
 import (
-	"time"
+	"github.com/Liar233/Scheduler/model"
 )
 
-type Event struct {
-	ID       string
-	Channel  string
-	Payload  []byte
-	FireTime time.Time
-}
-
-func (e *Event) Sub(t time.Time) time.Duration {
-	return e.FireTime.Sub(t)
-}
-
 type EventPool struct {
-	events []*Event
+	events []*model.Event
 }
 
-func (e *EventPool) Push(event *Event) {
+func (e *EventPool) Push(event *model.Event) {
 	e.events = append(e.events, event)
 }
 
-func (e *EventPool) Snapshot() []*Event {
-	snapshot := make([]*Event, 0)
+func (e *EventPool) Snapshot() []*model.Event {
+	snapshot := make([]*model.Event, 0)
 
 	for _, event := range e.events {
-		eventCopy := &Event{}
+		eventCopy := &model.Event{}
 
 		*eventCopy = *event
 
@@ -37,7 +26,7 @@ func (e *EventPool) Snapshot() []*Event {
 	return snapshot
 }
 
-func (e *EventPool) Get(i int) *Event {
+func (e *EventPool) Get(i int) *model.Event {
 	return e.events[i]
 }
 
@@ -55,6 +44,6 @@ func (e *EventPool) Less(i, j int) bool {
 
 func NewEventPool() EventPool {
 	return EventPool{
-		events: make([]*Event, 0),
+		events: make([]*model.Event, 0),
 	}
 }

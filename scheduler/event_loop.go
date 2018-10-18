@@ -1,20 +1,21 @@
-package main
+package scheduler
 
 import (
 	"errors"
 	"time"
 	"sort"
+	"github.com/Liar233/Scheduler/model"
 )
 
 type EventLoop struct {
 	events   EventPool
-	channels ChannelPool
+	channels *ChannelPool
 	running  bool
-	add      chan *Event
+	add      chan *model.Event
 	stop     chan interface{}
 }
 
-func NewEventLoop(channels ChannelPool) *EventLoop {
+func NewEventLoop(channels *ChannelPool) *EventLoop {
 	return &EventLoop{
 		running:  false,
 		channels: channels,
@@ -22,11 +23,11 @@ func NewEventLoop(channels ChannelPool) *EventLoop {
 	}
 }
 
-func (el EventLoop) AddChannel(ch ChannelInterface) error {
+func (el EventLoop) AddChannel(ch model.ChannelInterface) error {
 	return el.channels.Add(ch)
 }
 
-func (el *EventLoop) Push(event *Event) {
+func (el *EventLoop) Push(event *model.Event) {
 	if el.running == false {
 		el.events.Push(event)
 	}
@@ -40,13 +41,13 @@ func (el *EventLoop) Start() {
 	}
 
 	el.running = true
-	el.add = make(chan *Event)
+	el.add = make(chan *model.Event)
 	el.stop = make(chan interface{})
 
 	go el.run()
 }
 
-func (el *EventLoop) Snapshot() []*Event {
+func (el *EventLoop) Snapshot() []*model.Event {
 	return el.events.Snapshot()
 }
 
@@ -85,6 +86,6 @@ func (el *EventLoop) run() {
 	}
 }
 
-func (el *EventLoop) dispatch(event *Event) {
+func (el *EventLoop) dispatch(event *model.Event) {
 	go el.channels.DispatchEvent(event)
 }

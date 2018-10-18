@@ -1,10 +1,13 @@
-package main
+package scheduler
 
-import "testing"
+import (
+	"testing"
+	"github.com/Liar233/Scheduler/model"
+)
 
 func TestChannelPool_Add(t *testing.T) {
-	channel1 := NewChannel("channel1")
-	channel2 := NewChannel("channel2")
+	channel1 := model.NewChannel("channel1")
+	channel2 := model.NewChannel("channel2")
 
 	channelPool := NewChannelPool()
 
@@ -23,16 +26,16 @@ func TestChannelPool_Add(t *testing.T) {
 }
 
 func TestChannelPool_DispatchEvent_Fire(t *testing.T) {
-	event1 := Event{
+	event1 := model.Event{
 		Channel: "channel1",
 	}
 
-	event2 := Event{
+	event2 := model.Event{
 		Channel: "channel3",
 	}
 
-	channel1 := NewChannel("channel1")
-	channel2 := NewChannel("channel2")
+	channel1 := model.NewChannel("channel1")
+	channel2 := model.NewChannel("channel2")
 
 	channelPool := NewChannelPool()
 

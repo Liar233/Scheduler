@@ -1,17 +1,18 @@
-package main
+package cli
 
 import (
 	"github.com/urfave/cli"
 	"fmt"
 	"os"
 	"time"
+	"github.com/Liar233/Scheduler/config"
 )
 
 type CliAdapter struct {
 	engine *cli.App
 }
 
-func NewCli(config *AppConfig) CliAdapter {
+func NewCli(conf *config.AppConfig) *CliAdapter {
 	app := CliAdapter{
 		engine: cli.NewApp(),
 	}
@@ -39,7 +40,7 @@ func NewCli(config *AppConfig) CliAdapter {
 			return fmt.Errorf("--config parameter is empty")
 		}
 
-		validationErrors := LoadYamlConfig(configFilePath, config)
+		validationErrors := config.LoadYamlConfig(configFilePath, conf)
 
 		if len(validationErrors) > 0 {
 			for _, err := range validationErrors {
@@ -50,13 +51,13 @@ func NewCli(config *AppConfig) CliAdapter {
 		}
 
 		if port := c.Uint("port"); port != 0 {
-			config.Port = c.Uint("port")
+			conf.Port = c.Uint("port")
 		}
 
 		return nil
 	}
 
-	return app
+	return &app
 }
 
 func (cli *CliAdapter) Run(arguments []string) error {
