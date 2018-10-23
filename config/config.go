@@ -28,37 +28,36 @@ type AppConfig struct {
 	ApiTimeout uint                     `json:"api-timeout" yaml:"api-timeout"`
 }
 
-func NewAppConfig() *AppConfig{
-	return &AppConfig{}
+func NewAppConfig() (*AppConfig, error) {
+	conf := &AppConfig{}
+
+	if err := LoadYamlConfig("./config.yml", conf); err != nil {
+		return nil, err
+	}
+
+	return conf, nil
 }
 
 // Trying to fill AppConfig from yaml file
-func LoadYamlConfig(filename string, config *AppConfig) []error {
-	var validation []error
+func LoadYamlConfig(filename string, config *AppConfig) error {
 	var err error
 	var data []byte
 
 	if _, err = os.Stat(filename); err != nil {
-		return []error{
-			fmt.Errorf("config file `%s` does not exist", filename),
-		}
+		return fmt.Errorf("config file `%s` does not exist", filename)
 	}
 
 	data, err = ioutil.ReadFile(filename)
 
 	if err != nil {
-		return []error{
-			fmt.Errorf("can't read `%s` file with error: %s", filename, err),
-		}
+		return fmt.Errorf("can't read `%s` file with error: %s", filename, err)
 	}
 
 	err = yaml.Unmarshal(data, &config)
 
 	if err != nil {
-		return []error{
-			fmt.Errorf("can't parse yaml with error: %s", err),
-		}
+		return fmt.Errorf("can't parse yaml with error: %s", err)
 	}
 
-	return validation
+	return nil
 }
