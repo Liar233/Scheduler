@@ -20,23 +20,16 @@ func GetDescription() (string, int) {
 }
 
 // Validate config from Scheduler
-func ValidateConfig(config map[string]interface{}) []error {
-	var validationErrors []error
-	var err error
-
+func ValidateConfig(config map[string]interface{}) error {
 	for _, fieldName := range configFields {
 		if _, ok := config[fieldName]; !ok {
-			err = fmt.Errorf("module `%s`, config field `%s` not found", PluginName, fieldName)
-
-			validationErrors = append(validationErrors, err)
+			return fmt.Errorf("module `%s`, config field `%s` not found", PluginName, fieldName)
 		}
 
 		if config[fieldName] == "" {
-			err = fmt.Errorf("module `%s`, config field `%s` empty", PluginName, fieldName)
-
-			validationErrors = append(validationErrors, err)
+			return fmt.Errorf("module `%s`, config field `%s` empty", PluginName, fieldName)
 		}
 	}
 
-	return validationErrors
+	return nil
 }
