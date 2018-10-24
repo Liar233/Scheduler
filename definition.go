@@ -6,6 +6,7 @@ import (
 	"github.com/Liar233/Scheduler/scheduler"
 	"github.com/Liar233/Scheduler/api"
 	"github.com/Liar233/Scheduler/api/action"
+	"github.com/Liar233/Scheduler/storage"
 )
 
 // Init new application
@@ -18,6 +19,7 @@ func NewApplication() *fx.App {
 			api.NewWebServer,
 			scheduler.NewChannelPool,
 			scheduler.NewEventLoop,
+			storage.NewEventStorage,
 		),
 		fx.Invoke(func(wsa *api.WebServerAdapter) {
 			go wsa.ListenAndServe()
