@@ -1,0 +1,26 @@
+version: "2"
+
+services:
+    app:
+        image: golang:latest
+        container_name: golang-scheduler
+        volumes:
+          - .:/go/src/scheduler
+        working_dir: /go/src/scheduler/build
+        command: ./scheduler
+        links:
+            - postgres
+        ports:
+            - 5233:5233
+
+    postgres:
+        image: postgres:9.5.6
+        container_name: postgresql-scheduler
+        environment:
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=${DB_DATABASE}
+        volumes:
+            - /var/lib/postgresql
+        ports:
+            - 5434:5432
