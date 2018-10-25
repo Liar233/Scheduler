@@ -6,15 +6,11 @@ import (
 )
 
 type EventStorage struct {
-	driver drivers.StorageDriver
+	driver *drivers.StorageDriver
 }
 
 func NewEventStorage(conf *config.AppConfig) (*EventStorage, error) {
-	d, err := drivers.LoadPluginDriver(&conf.Storage.DriverConfig)
+	d := drivers.NewStorageDriver(conf.Storage)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return &EventStorage{}, nil
+	return &EventStorage{driver: d}, nil
 }

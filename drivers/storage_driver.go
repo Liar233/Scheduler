@@ -1,23 +1,62 @@
 package drivers
 
-import "github.com/Liar233/Scheduler/model"
+import (
+	_ "github.com/lib/pq"
+	"fmt"
+	"database/sql"
+	"github.com/Liar233/Scheduler/config"
+	"github.com/Liar233/Scheduler/model"
+)
 
-type StorageDriver interface {
-	Connect(conf map[string]interface{}) error
-	Close() error
-	Creator
-	Remover
-	Querier
+type StorageDriver struct {
+	config     config.StorageConfig
+	connection *sql.DB
 }
 
-type Creator interface {
-	Create(e model.Event) (interface{}, error)
+func (sd *StorageDriver) Connect() error {
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s/%s?sslmode=disable",
+		sd.config.Options["username"],
+		sd.config.Options["password"],
+		sd.config.Options["host"],
+		sd.config.Options["database"],
+	)
+
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return fmt.Errorf("fail to connect to postgres with error: %s", err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return fmt.Errorf("fail to ping database with error: %s", err)
+	}
+
+	sd.connection = db
+
+	return nil
 }
 
-type Remover interface {
-	Remove(id interface{}) error
+func (sd *StorageDriver) Close() error {
+	return sd.connection.Close()
 }
 
-type Querier interface {
-	Get(id interface{}) (model.Event, error)
+func (sd *StorageDriver) Create(event model.Event) (interface{}, error) {
+	return nil, nil
+}
+
+func (sd *StorageDriver) Delete(id interface{}) error {
+	return nil
+}
+
+func (sd *StorageDriver) Query(params map[string]interface{}) {
+
+}
+
+func NewStorageDriver(conf config.StorageConfig) *StorageDriver {
+	sd := &StorageDriver{
+		config: conf,
+	}
+
+	return sd
 }
