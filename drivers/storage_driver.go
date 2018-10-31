@@ -8,6 +8,9 @@ import (
 	"github.com/Liar233/Scheduler/model"
 )
 
+const insertQuery = "INSERT INTO events (channel, firetime, payload) VALUES ($1, $2, $3) RETURNING id;"
+const deleteQuery = "DELETE FROM events WHERE id = $1;"
+
 type StorageDriver struct {
 	config     config.StorageConfig
 	connection *sql.DB
@@ -42,11 +45,21 @@ func (sd *StorageDriver) Close() error {
 }
 
 func (sd *StorageDriver) Create(event model.Event) (interface{}, error) {
-	return nil, nil
+	var id int
+
+	err := sd.connection.QueryRow(insertQuery, event.Channel, event.FireTime, event.Payload).Scan(&id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return id, nil
 }
 
 func (sd *StorageDriver) Delete(id interface{}) error {
-	return nil
+	_, err := sd.connection.Exec(deleteQuery, id)
+
+	return err
 }
 
 func (sd *StorageDriver) Query(params map[string]interface{}) {
