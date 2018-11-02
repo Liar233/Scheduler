@@ -27,8 +27,18 @@ func (es *EventStorage) Delete(event model.Event) error {
 	return es.driver.Delete(event.ID)
 }
 
+func (es *EventStorage) Query(params map[string]interface{}) ([]model.Event, error) {
+	return es.driver.Query(params)
+}
+
 func NewEventStorage(conf *config.AppConfig) (*EventStorage, error) {
 	d := drivers.NewStorageDriver(conf.Storage)
+
+	err := d.Connect()
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &EventStorage{driver: d}, nil
 }

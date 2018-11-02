@@ -6,10 +6,12 @@ import (
 	"database/sql"
 	"github.com/Liar233/Scheduler/config"
 	"github.com/Liar233/Scheduler/model"
+	"time"
 )
 
 const insertQuery = "INSERT INTO events (channel, firetime, payload) VALUES ($1, $2, $3) RETURNING id;"
 const deleteQuery = "DELETE FROM events WHERE id = $1;"
+const selectQuery = "SELECT * FROM events $1;"
 
 type StorageDriver struct {
 	config     config.StorageConfig
@@ -18,10 +20,11 @@ type StorageDriver struct {
 
 func (sd *StorageDriver) Connect() error {
 	dsn := fmt.Sprintf(
-		"postgres://%s:%s@%s/%s?sslmode=disable",
+		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		sd.config.Options["username"],
 		sd.config.Options["password"],
 		sd.config.Options["host"],
+		sd.config.Options["port"],
 		sd.config.Options["database"],
 	)
 
@@ -62,8 +65,46 @@ func (sd *StorageDriver) Delete(id interface{}) error {
 	return err
 }
 
-func (sd *StorageDriver) Query(params map[string]interface{}) {
+func (sd *StorageDriver) Query(params map[string]interface{}) ([]model.Event, error) {
+	//var conditions = ""
 
+	results := make([]model.Event, 0)
+
+	if len(params) != 0 {
+
+	}
+
+	rows, err := sd.connection.Query("SELECT * FROM events;")
+	defer rows.Close()
+
+	if err != nil {
+		return results, err
+	}
+
+	for rows.Next() {
+		var (
+			id, channel string
+			firetime    time.Time
+			payload     []byte
+		)
+
+		err := rows.Scan(&id, &channel, &firetime, &payload)
+
+		if err != nil {
+			return results, err
+		}
+
+		event := model.Event{
+			ID:       fmt.Sprintf("%v", id),
+			Channel:  channel,
+			FireTime: firetime,
+			Payload:  payload,
+		}
+
+		results = append(results, event)
+	}
+
+	return results, nil
 }
 
 func NewStorageDriver(conf config.StorageConfig) *StorageDriver {
