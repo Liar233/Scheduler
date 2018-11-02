@@ -31,6 +31,10 @@ func (es *EventStorage) Query(params map[string]interface{}) ([]model.Event, err
 	return es.driver.Query(params)
 }
 
+func (es *EventStorage)Get(id string) (model.Event, error) {
+	return es.driver.Get(id)
+}
+
 func NewEventStorage(conf *config.AppConfig) (*EventStorage, error) {
 	d := drivers.NewStorageDriver(conf.Storage)
 
