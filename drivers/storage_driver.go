@@ -7,12 +7,13 @@ import (
 	"github.com/Liar233/Scheduler/config"
 	"github.com/Liar233/Scheduler/model"
 	"time"
+	"strconv"
 )
 
 const insertQuery = "INSERT INTO events (channel, firetime, payload) VALUES ($1, $2, $3) RETURNING id;"
 const deleteQuery = "DELETE FROM events WHERE id = $1;"
 const selectQuery = "SELECT * FROM events;"
-const getQuery = "SELECT * FROM events id=$1;"
+const getQuery = "SELECT * FROM events WHERE id=$1;"
 
 type StorageDriver struct {
 	config     config.StorageConfig
@@ -109,7 +110,9 @@ func (sd *StorageDriver) Query(params map[string]interface{}) ([]model.Event, er
 func (sd *StorageDriver) Get(id interface{}) (model.Event, error) {
 	event := model.Event{}
 
-	row := sd.connection.QueryRow(getQuery, id)
+	intId, err := strconv.ParseInt(fmt.Sprintf("%v", id), 10, 32)
+
+	row := sd.connection.QueryRow(getQuery, intId)
 
 	var (
 		eventId, channel string
@@ -117,7 +120,7 @@ func (sd *StorageDriver) Get(id interface{}) (model.Event, error) {
 		payload          []byte
 	)
 
-	err := row.Scan(&eventId, &channel, &firetime, &payload)
+	err = row.Scan(&eventId, &channel, &firetime, &payload)
 
 	if err != nil {
 		return event, err
