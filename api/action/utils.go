@@ -7,17 +7,17 @@ import (
 )
 
 type ApiResponse struct {
-	IsSuccess bool
+	IsSuccess bool `json:"isSuccess"`
 }
 
 type SuccessResponse struct {
 	ApiResponse
-	Payload interface{}
+	Payload interface{} `json:"payload"`
 }
 
 type ErrorResponse struct {
 	ApiResponse
-	Error string
+	Error string `json:"error"`
 }
 
 func FillHeaders(w http.ResponseWriter) {

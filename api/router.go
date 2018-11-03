@@ -20,15 +20,32 @@ type ActionParams struct {
 	Delete      *action.DeleteEventAction
 }
 
+func ParametriseMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+
+		q := r.URL.Query()
+
+		for key, val := range vars {
+			q.Add(key, val)
+		}
+
+		r.URL.RawQuery = q.Encode()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func NewRouterAdapter(actions ActionParams) *RouterAdapter {
 	r := &RouterAdapter{
 		*mux.NewRouter(),
 	}
 
+	r.Use(ParametriseMiddleware)
 	r.Handle("/health-check", actions.HealthCheck).Methods(http.MethodGet)
-	r.Handle("/event/{id:[0-9]+}", actions.Get).Methods(http.MethodGet)
+	r.Handle("/event/{id}", actions.Get).Methods(http.MethodGet)
+	r.Handle("/event/{id}", actions.Delete).Methods(http.MethodDelete)
 	r.Handle("/event", actions.Create).Methods(http.MethodPost)
-	r.Handle("/event", actions.Delete).Methods(http.MethodDelete)
 
 	return r
 }

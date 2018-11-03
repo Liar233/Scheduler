@@ -5,7 +5,7 @@ import "time"
 type Event struct {
 	ID       string    `json:"id"`
 	Channel  string    `json:"channel"`
-	Payload  []byte    `json:"payload"`
+	Payload  string    `json:"payload"`
 	FireTime time.Time `json:"firetime"`
 }
 

@@ -13,7 +13,7 @@ import (
 const insertQuery = "INSERT INTO events (channel, firetime, payload) VALUES ($1, $2, $3) RETURNING id;"
 const deleteQuery = "DELETE FROM events WHERE id = $1;"
 const selectQuery = "SELECT * FROM events;"
-const getQuery = "SELECT * FROM events WHERE id=$1;"
+const getQuery = "SELECT * FROM events WHERE id=$1 LIMIT 1;"
 
 type StorageDriver struct {
 	config     config.StorageConfig
@@ -49,19 +49,19 @@ func (sd *StorageDriver) Close() error {
 	return sd.connection.Close()
 }
 
-func (sd *StorageDriver) Create(event model.Event) (interface{}, error) {
+func (sd *StorageDriver) Create(event model.Event) (string, error) {
 	var id int
 
 	err := sd.connection.QueryRow(insertQuery, event.Channel, event.FireTime, event.Payload).Scan(&id)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return id, nil
+	return fmt.Sprintf("%v", id), nil
 }
 
-func (sd *StorageDriver) Delete(id interface{}) error {
+func (sd *StorageDriver) Delete(id string) error {
 	_, err := sd.connection.Exec(deleteQuery, id)
 
 	return err
@@ -85,7 +85,7 @@ func (sd *StorageDriver) Query(params map[string]interface{}) ([]model.Event, er
 		var (
 			id, channel string
 			firetime    time.Time
-			payload     []byte
+			payload     string
 		)
 
 		err := rows.Scan(&id, &channel, &firetime, &payload)
@@ -107,17 +107,17 @@ func (sd *StorageDriver) Query(params map[string]interface{}) ([]model.Event, er
 	return results, nil
 }
 
-func (sd *StorageDriver) Get(id interface{}) (model.Event, error) {
+func (sd *StorageDriver) Get(id string) (model.Event, error) {
 	event := model.Event{}
 
-	intId, err := strconv.ParseInt(fmt.Sprintf("%v", id), 10, 32)
+	intId, err := strconv.ParseInt(id, 10, 32)
 
 	row := sd.connection.QueryRow(getQuery, intId)
 
 	var (
 		eventId, channel string
 		firetime         time.Time
-		payload          []byte
+		payload          string
 	)
 
 	err = row.Scan(&eventId, &channel, &firetime, &payload)
