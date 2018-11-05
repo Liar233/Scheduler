@@ -2,16 +2,16 @@ version: "2"
 
 services:
     app:
-        image: golang:latest
+        build: .
         container_name: golang-scheduler
         volumes:
           - .:/go/src/scheduler
-        working_dir: /go/src/scheduler/build
-        command: ./scheduler
+        working_dir: /go/src/scheduler
         links:
             - postgres
-        ports:
-            - 5233:5233
+#        ports:
+#            - 5233:5233
+#            - 5555:5555
 
     postgres:
         image: postgres:9.5.6
