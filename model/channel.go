@@ -1,12 +1,19 @@
 package model
 
+import "github.com/Liar233/Scheduler/config"
+
 type ChannelInterface interface {
 	Fire(e *Event) error
 	Name() string
+	Connect(config *config.ChannelConfig) error
 }
 
 type Channel struct {
 	name string
+}
+
+func (c *Channel) Connect(config *config.ChannelConfig) error {
+	return nil
 }
 
 func (c *Channel) Fire(e *Event) error {
