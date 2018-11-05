@@ -3,13 +3,12 @@ package scheduler
 import (
 	"testing"
 	"time"
-	"bytes"
 	"github.com/Liar233/Scheduler/model"
 )
 
 type ChannelStub struct {
 	name    string
-	Payload []byte
+	Payload string
 }
 
 func (c *ChannelStub) Fire(e *model.Event) error {
@@ -58,12 +57,12 @@ func TestEventLoopRun(t *testing.T) {
 	event := &model.Event{
 		ID:       "TestEvent",
 		Channel:  "test_channel",
-		Payload:  []byte("Test"),
+		Payload:  "Test",
 		FireTime: fireTime,
 	}
 
 	defer func() {
-		if !bytes.Equal(channel.Payload, []byte("Test")) {
+		if channel.Payload != "Test" {
 			t.Fail()
 			t.Error("Not valid event payload!")
 		}
