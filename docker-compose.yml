@@ -9,9 +9,8 @@ services:
         working_dir: /go/src/scheduler
         links:
             - postgres
-#        ports:
-#            - 5233:5233
-#            - 5555:5555
+        ports:
+            - 5233:5233
 
     postgres:
         image: postgres:9.5.6
