@@ -5,27 +5,5 @@ import "github.com/Liar233/Scheduler/config"
 type ChannelInterface interface {
 	Fire(e *Event) error
 	Name() string
-	Connect(config *config.ChannelConfig) error
-}
-
-type Channel struct {
-	name string
-}
-
-func (c *Channel) Connect(config *config.ChannelConfig) error {
-	return nil
-}
-
-func (c *Channel) Fire(e *Event) error {
-	return nil
-}
-
-func (c *Channel) Name() string {
-	return c.name
-}
-
-func NewChannel(name string) *Channel {
-	return &Channel{
-		name: name,
-	}
+	Connect(config config.ChannelConfig, name string) error
 }

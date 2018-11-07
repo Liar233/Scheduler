@@ -8,23 +8,23 @@ import (
 )
 
 type EventLoop struct {
-	eventPool EventPool
-	channels  *ChannelPool
-	running   bool
-	add       chan *model.Event
-	stop      chan interface{}
+	eventPool   EventPool
+	channelPool *ChannelPool
+	running     bool
+	add         chan *model.Event
+	stop        chan interface{}
 }
 
 func NewEventLoop(channels *ChannelPool) *EventLoop {
 	return &EventLoop{
-		running:   false,
-		channels:  channels,
-		eventPool: NewEventPool(),
+		running:     false,
+		channelPool: channels,
+		eventPool:   NewEventPool(),
 	}
 }
 
 func (el EventLoop) AddChannel(ch model.ChannelInterface) error {
-	return el.channels.Add(ch)
+	return el.channelPool.Add(ch)
 }
 
 func (el *EventLoop) Push(event *model.Event) {
@@ -87,5 +87,5 @@ func (el *EventLoop) run() {
 }
 
 func (el *EventLoop) dispatch(event *model.Event) {
-	go el.channels.DispatchEvent(event)
+	go el.channelPool.DispatchEvent(event)
 }
