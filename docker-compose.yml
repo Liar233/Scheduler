@@ -5,7 +5,7 @@ services:
         build: .
         container_name: golang-scheduler
         volumes:
-          - .:/go/src/scheduler
+            - .:/go/src/scheduler
         working_dir: /go/src/scheduler
         links:
             - postgres
