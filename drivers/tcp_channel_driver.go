@@ -13,7 +13,7 @@ type TcpChannel struct {
 }
 
 func (tc *TcpChannel) Connect(config config.ChannelConfig, name string) error {
-	address := fmt.Sprintf("%s:%s", config.Options["host"], config.Options["port"])
+	address := fmt.Sprintf("%s:%d", config.Options["host"], config.Options["port"])
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", address)
 
@@ -45,4 +45,16 @@ func (tc *TcpChannel) Fire(e *model.Event) error {
 
 func (tc *TcpChannel) Name() string {
 	return tc.name
+}
+
+func NewTcpChannel(conf *config.ChannelConfig, name string) *TcpChannel {
+	channel := &TcpChannel{}
+
+	err := channel.Connect(*conf, name)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return channel
 }

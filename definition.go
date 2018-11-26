@@ -20,6 +20,7 @@ func NewApplication() *fx.App {
 			scheduler.NewChannelPool,
 			scheduler.NewEventLoop,
 
+			action.NewChannelListAction,
 			action.NewEventListAction,
 			action.NewHealthCheck,
 			action.NewGetEventAction,

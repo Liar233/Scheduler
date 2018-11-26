@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Liar233/Scheduler/model"
+	"github.com/Liar233/Scheduler/config"
+	"github.com/Liar233/Scheduler/drivers"
 )
 
 type ChannelPool struct {
@@ -30,8 +32,25 @@ func (cp *ChannelPool) DispatchEvent(event *model.Event) error {
 	return channel.Fire(event)
 }
 
-func NewChannelPool() *ChannelPool {
-	return &ChannelPool{
+func (cp *ChannelPool) GetList() []string {
+	var channelList []string
+
+	for name := range cp.channels {
+		channelList = append(channelList, name)
+	}
+
+	return channelList
+}
+
+func NewChannelPool(conf *config.AppConfig) *ChannelPool {
+	cp := &ChannelPool{
 		channels: make(map[string]model.ChannelInterface),
 	}
+
+	for name, channelConf := range conf.Channels {
+		channel := drivers.NewTcpChannel(&channelConf, name)
+		cp.Add(channel)
+	}
+
+	return cp
 }
