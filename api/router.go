@@ -18,6 +18,8 @@ type ActionParams struct {
 	Create      *action.CreateEventAction
 	Get         *action.GetEventAction
 	Delete      *action.DeleteEventAction
+	List        *action.EventListAction
+	EventLoop   *action.EventLoopAction
 }
 
 func ParametriseMiddleware(next http.Handler) http.Handler {
@@ -46,6 +48,7 @@ func NewRouterAdapter(actions ActionParams) *RouterAdapter {
 	r.Handle("/event/{id}", actions.Get).Methods(http.MethodGet)
 	r.Handle("/event/{id}", actions.Delete).Methods(http.MethodDelete)
 	r.Handle("/event", actions.Create).Methods(http.MethodPost)
-
+	r.Handle("/event", actions.List).Methods(http.MethodGet)
+	r.Handle("/event-loop", actions.EventLoop).Methods(http.MethodGet)
 	return r
 }

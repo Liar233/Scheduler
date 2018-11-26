@@ -20,10 +20,12 @@ func NewApplication() *fx.App {
 			scheduler.NewChannelPool,
 			scheduler.NewEventLoop,
 
+			action.NewEventListAction,
 			action.NewHealthCheck,
 			action.NewGetEventAction,
 			action.NewCreateEventAction,
 			action.NewDeleteEventAction,
+			action.NewEventLoopAction,
 
 			api.NewRouterAdapter,
 			api.NewWebServer,
