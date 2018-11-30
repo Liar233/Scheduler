@@ -10,10 +10,16 @@ import (
 type TcpChannel struct {
 	conn *net.TCPConn
 	name string
+	config *config.ChannelConfig
 }
 
-func (tc *TcpChannel) Connect(config config.ChannelConfig, name string) error {
-	address := fmt.Sprintf("%s:%d", config.Options["host"], config.Options["port"])
+func (tc *TcpChannel) Init(config *config.ChannelConfig, name string) {
+	tc.name = name
+	tc.config = config
+}
+
+func (tc *TcpChannel) Connect() error {
+	address := fmt.Sprintf("%s:%d", tc.config.Options["host"], tc.config.Options["port"])
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", address)
 
@@ -28,17 +34,24 @@ func (tc *TcpChannel) Connect(config config.ChannelConfig, name string) error {
 	}
 
 	tc.conn = conn
-	tc.name = name
 
 	return nil
 }
 
 func (tc *TcpChannel) Fire(e *model.Event) error {
-	_, err := tc.conn.Write([]byte(e.Payload))
+	err := tc.Connect()
 
 	if err != nil {
 		return err
 	}
+
+	_, err = tc.conn.Write([]byte(e.Payload + "\n"))
+
+	if err != nil {
+		return err
+	}
+
+	tc.conn.Close()
 
 	return nil
 }
@@ -50,11 +63,7 @@ func (tc *TcpChannel) Name() string {
 func NewTcpChannel(conf *config.ChannelConfig, name string) *TcpChannel {
 	channel := &TcpChannel{}
 
-	err := channel.Connect(*conf, name)
-
-	if err != nil {
-		panic(err)
-	}
+	channel.Init(conf, name)
 
 	return channel
 }

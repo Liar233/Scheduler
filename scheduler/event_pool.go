@@ -2,20 +2,23 @@ package scheduler
 
 import (
 	"github.com/Liar233/Scheduler/model"
+	"time"
 )
 
 type EventPool struct {
 	events []*model.Event
 }
 
-func (e *EventPool) Push(event *model.Event) {
-	e.events = append(e.events, event)
+func (ep *EventPool) Push(event *model.Event) {
+	if time.Now().Before(event.FireTime) {
+		ep.events = append(ep.events, event)
+	}
 }
 
-func (e *EventPool) Snapshot() []*model.Event {
+func (ep *EventPool) Snapshot() []*model.Event {
 	snapshot := make([]*model.Event, 0)
 
-	for _, event := range e.events {
+	for _, event := range ep.events {
 		eventCopy := &model.Event{}
 
 		*eventCopy = *event
@@ -26,20 +29,28 @@ func (e *EventPool) Snapshot() []*model.Event {
 	return snapshot
 }
 
-func (e *EventPool) Get(i int) *model.Event {
-	return e.events[i]
+func (ep *EventPool) Get(i int) *model.Event {
+	return ep.events[i]
 }
 
-func (e *EventPool) Len() int {
-	return len(e.events)
+func (ep *EventPool) Len() int {
+	return len(ep.events)
 }
 
-func (e *EventPool) Swap(i, j int) {
-	e.events[i], e.events[j] = e.events[j], e.events[i]
+func (ep *EventPool) Swap(i, j int) {
+	ep.events[i], ep.events[j] = ep.events[j], ep.events[i]
 }
 
-func (e *EventPool) Less(i, j int) bool {
-	return e.events[i].FireTime.Before(e.events[j].FireTime)
+func (ep *EventPool) Less(i, j int) bool {
+	return ep.events[i].FireTime.Before(ep.events[j].FireTime)
+}
+
+func (ep *EventPool) Remove(event *model.Event) {
+	for i, e := range ep.events {
+		if e == event {
+			ep.events = append(ep.events[:i], ep.events[i+1:]...)
+		}
+	}
 }
 
 func NewEventPool() EventPool {

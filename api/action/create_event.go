@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/Liar233/Scheduler/model"
+	"github.com/Liar233/Scheduler/scheduler"
 )
 
 type CreateEventAction struct {
 	es *storage.EventStorage
+	el *scheduler.EventLoop
 }
 
 func (a *CreateEventAction) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +26,8 @@ func (a *CreateEventAction) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	event, err = a.es.Create(event)
 
+	a.el.Push(event)
+
 	if err != nil {
 		WriteErrorResponse(w, err)
 		return
@@ -32,8 +36,9 @@ func (a *CreateEventAction) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	WriteSuccessResponse(w, event)
 }
 
-func NewCreateEventAction(storage *storage.EventStorage) *CreateEventAction {
+func NewCreateEventAction(storage *storage.EventStorage, el *scheduler.EventLoop) *CreateEventAction {
 	return &CreateEventAction{
 		es: storage,
+		el: el,
 	}
 }

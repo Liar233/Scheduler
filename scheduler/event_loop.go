@@ -16,23 +16,27 @@ type EventLoop struct {
 }
 
 func NewEventLoop(channels *ChannelPool) *EventLoop {
-	return &EventLoop{
+	el := &EventLoop{
 		running:     false,
 		channelPool: channels,
 		eventPool:   NewEventPool(),
 	}
+
+	el.Start()
+
+	return el
 }
 
 func (el EventLoop) AddChannel(ch model.ChannelInterface) error {
 	return el.channelPool.Add(ch)
 }
 
-func (el *EventLoop) Push(event *model.Event) {
+func (el *EventLoop) Push(event model.Event) {
 	if el.running == false {
-		el.eventPool.Push(event)
+		el.eventPool.Push(&event)
 	}
 
-	el.add <- event
+	el.add <- &event
 }
 
 func (el *EventLoop) Start() {
@@ -41,8 +45,8 @@ func (el *EventLoop) Start() {
 	}
 
 	el.running = true
-	el.add = make(chan *model.Event)
-	el.stop = make(chan interface{})
+	el.add = make(chan *model.Event, 1)
+	el.stop = make(chan interface{}, 1)
 
 	go el.run()
 }
@@ -65,27 +69,27 @@ func (el *EventLoop) run() {
 			timer = time.NewTimer(el.eventPool.Get(0).Sub(time.Now()))
 		}
 
-		for {
-			select {
-			case now = <-timer.C:
-				for _, event := range el.eventPool.Snapshot() {
-					if now.After(event.FireTime) {
-						el.dispatch(event)
-					}
+		select {
+		case now = <-timer.C:
+			for _, event := range el.eventPool.events {
+				if now.After(event.FireTime) {
+					el.dispatch(*event)
+					el.eventPool.Remove(event)
 				}
-			case newEvent := <-el.add:
-				timer.Stop()
-				el.eventPool.Push(newEvent)
-			case <-el.stop:
-				close(el.add)
-				el.running = false
-				return
 			}
 			break
+		case newEvent := <-el.add:
+			timer.Stop()
+			el.eventPool.Push(newEvent)
+			break
+		case <-el.stop:
+			close(el.add)
+			el.running = false
+			return
 		}
 	}
 }
 
-func (el *EventLoop) dispatch(event *model.Event) {
-	go el.channelPool.DispatchEvent(event)
+func (el *EventLoop) dispatch(event model.Event) {
+	go el.channelPool.DispatchEvent(&event)
 }

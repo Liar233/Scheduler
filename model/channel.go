@@ -5,5 +5,6 @@ import "github.com/Liar233/Scheduler/config"
 type ChannelInterface interface {
 	Fire(e *Event) error
 	Name() string
-	Connect(config config.ChannelConfig, name string) error
+	Init(config *config.ChannelConfig, name string)
+	Connect() error
 }
