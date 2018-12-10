@@ -8,5 +8,5 @@ RUN apt install -y \
 
 EXPOSE 5233
 
-ENTRYPOINT ["/go/src/scheduler/docker-files/tcp_server.sh", "5555"]
+ENTRYPOINT ["go", "run", "./docker-files/tcp_server.go", "5555"]
 

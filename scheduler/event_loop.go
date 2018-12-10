@@ -5,6 +5,7 @@ import (
 	"time"
 	"sort"
 	"github.com/Liar233/Scheduler/model"
+	"log"
 )
 
 type EventLoop struct {
@@ -77,10 +78,15 @@ func (el *EventLoop) run() {
 					el.eventPool.Remove(event)
 				}
 			}
-			break
+			continue
 		case newEvent := <-el.add:
 			timer.Stop()
-			el.eventPool.Push(newEvent)
+
+			if err := el.eventPool.Push(newEvent); err != nil {
+				log.Println(err)
+				continue
+			}
+
 			break
 		case <-el.stop:
 			close(el.add)
@@ -91,5 +97,7 @@ func (el *EventLoop) run() {
 }
 
 func (el *EventLoop) dispatch(event model.Event) {
-	go el.channelPool.DispatchEvent(&event)
+	e := &event
+
+	go el.channelPool.DispatchEvent(e)
 }

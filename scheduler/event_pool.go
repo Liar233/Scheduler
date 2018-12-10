@@ -3,16 +3,21 @@ package scheduler
 import (
 	"github.com/Liar233/Scheduler/model"
 	"time"
+	"fmt"
 )
 
 type EventPool struct {
 	events []*model.Event
 }
 
-func (ep *EventPool) Push(event *model.Event) {
+func (ep *EventPool) Push(event *model.Event) error {
 	if time.Now().Before(event.FireTime) {
 		ep.events = append(ep.events, event)
+	} else {
+		return fmt.Errorf("Event %s is to late...", event.ID)
 	}
+
+	return nil
 }
 
 func (ep *EventPool) Snapshot() []*model.Event {
