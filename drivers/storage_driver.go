@@ -8,11 +8,12 @@ import (
 	"github.com/Liar233/Scheduler/model"
 	"time"
 	"strconv"
+	"strings"
 )
 
 const insertQuery = "INSERT INTO events (channel, firetime, payload) VALUES ($1, $2, $3) RETURNING id;"
 const deleteQuery = "DELETE FROM events WHERE id = $1;"
-const selectQuery = "SELECT * FROM events;"
+const selectQuery = "SELECT * FROM events %s;"
 const getQuery = "SELECT * FROM events WHERE id=$1 LIMIT 1;"
 
 type StorageDriver struct {
@@ -67,20 +68,41 @@ func (sd *StorageDriver) Delete(id string) error {
 	return err
 }
 
-func (sd *StorageDriver) Query(params map[string]interface{}) ([]model.Event, error) {
+func (sd *StorageDriver) Query(params map[string]map[string]interface{}) ([]model.Event, error) {
 	results := make([]model.Event, 0)
 
-	if len(params) != 0 {
+	var args []interface{}
+	var conditions []string
 
+	if len(params) != 0 {
+		var i int = 1
+
+		for field, operators := range params {
+			for operator, value := range operators {
+				condition := fmt.Sprintf(" %s %s $%d ", field, operator, i)
+
+				conditions = append(conditions, condition)
+				args = append(args, value)
+
+				i++
+			}
+		}
+	} else {
+		conditions = append(conditions, "")
 	}
 
-	rows, err := sd.connection.Query(selectQuery)
-	defer rows.Close()
+	t := fmt.Sprintf(" WHERE %s", strings.Join(conditions," AND "))
+	query := fmt.Sprintf(selectQuery, t);
+
+	rows, err := sd.connection.Query(query, args...)
 
 	if err != nil {
+		println(err)
+
 		return results, err
 	}
 
+	defer rows.Close()
 	for rows.Next() {
 		var (
 			id, channel string

@@ -3,6 +3,7 @@ package action
 import (
 	"github.com/Liar233/Scheduler/storage"
 	"net/http"
+	"time"
 )
 
 type EventListAction struct {
@@ -10,7 +11,11 @@ type EventListAction struct {
 }
 
 func (a *EventListAction) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var params = make(map[string]interface{})
+	var params = make(map[string]map[string]interface{})
+
+	now := time.Now()
+	params["firetime"] = make(map[string]interface{})
+	params["firetime"][">="] = now
 
 	events, err := a.es.Query(params)
 

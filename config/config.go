@@ -25,7 +25,7 @@ type AppConfig struct {
 	Port       uint                     `json:"port" yaml:"port"`
 	Storage    StorageConfig            `json:"storage" yaml:"storage"`
 	Channels   map[string]ChannelConfig `json:"channels" yaml:"channels"`
-	ApiTimeout uint                     `json:"api-timeout" yaml:"api-timeout"`
+	FreezeTimeout uint                     `json:"freeze-timeout" yaml:"freeze-timeout"`
 }
 
 func NewAppConfig() (*AppConfig, error) {

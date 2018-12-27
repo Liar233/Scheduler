@@ -6,14 +6,16 @@ import (
 	"sort"
 	"github.com/Liar233/Scheduler/model"
 	"log"
+	"github.com/Liar233/Scheduler/storage"
 )
 
 type EventLoop struct {
-	eventPool   EventPool
-	channelPool *ChannelPool
-	running     bool
-	add         chan *model.Event
-	stop        chan interface{}
+	eventStorage *storage.EventStorage
+	eventPool    EventPool
+	channelPool  *ChannelPool
+	running      bool
+	add          chan *model.Event
+	stop         chan interface{}
 }
 
 func NewEventLoop(channels *ChannelPool) *EventLoop {
