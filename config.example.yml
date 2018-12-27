@@ -1,5 +1,6 @@
 port: 5233
-freeze-timeout: 10
+freeze-timeout: 2
+event-step: 1
 master: false
 storage:
   name: postgresql

@@ -21,11 +21,12 @@ type ChannelConfig struct {
 }
 
 type AppConfig struct {
-	Master     bool                     `json:"master" yaml:"master"`
-	Port       uint                     `json:"port" yaml:"port"`
-	Storage    StorageConfig            `json:"storage" yaml:"storage"`
-	Channels   map[string]ChannelConfig `json:"channels" yaml:"channels"`
+	Master        bool                     `json:"master" yaml:"master"`
+	Port          uint                     `json:"port" yaml:"port"`
+	Storage       StorageConfig            `json:"storage" yaml:"storage"`
+	Channels      map[string]ChannelConfig `json:"channels" yaml:"channels"`
 	FreezeTimeout uint                     `json:"freeze-timeout" yaml:"freeze-timeout"`
+	EventStep     uint                     `json:"event-step" yaml:"event-step"`
 }
 
 func NewAppConfig() (*AppConfig, error) {

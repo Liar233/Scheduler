@@ -6,11 +6,9 @@ import (
 	"sort"
 	"github.com/Liar233/Scheduler/model"
 	"log"
-	"github.com/Liar233/Scheduler/storage"
 )
 
 type EventLoop struct {
-	eventStorage *storage.EventStorage
 	eventPool    EventPool
 	channelPool  *ChannelPool
 	running      bool
